@@ -39,7 +39,7 @@
         <div class="grid-3">
           <div class="form-control">
             <label for="dni">DNI</label>
-            <input type="text" id="dni" required pattern="[0-9]{8}" placeholder="8 dígitos">
+            <input type="text" id="dni" required inputmode="numeric" pattern="[0-9]{8}" maxlength="8" placeholder="8 dígitos">
           </div>
           <div class="form-control">
             <label for="edad">Edad</label>
@@ -56,7 +56,7 @@
         <div class="grid-2">
           <div class="form-control">
             <label for="celular">Celular</label>
-            <input type="tel" id="celular" required placeholder="987654321">
+            <input type="text" id="celular" required inputmode="numeric" pattern="[0-9]{9}" maxlength="9" placeholder="9 dígitos">
           </div>
           <div class="form-control">
             <label for="correo">Correo Electrónico</label>
@@ -65,6 +65,17 @@
         </div>
 
         <div class="form-group-title">Perfil Académico</div>
+        <div class="grid-2">
+          <div class="form-control">
+            <label for="institucion_educativa">Institución Educativa</label>
+            <input type="text" id="institucion_educativa" required placeholder="Ej. Colegio Nacional">
+          </div>
+          <div class="form-control">
+            <label for="promedio_academico">Promedio Académico</label>
+            <input type="number" id="promedio_academico" required min="0" max="20" step="0.01" placeholder="Ej. 17.50">
+          </div>
+        </div>
+
         <div class="grid-2">
           <div class="form-control">
             <label for="grado_academico">Grado Académico Actual</label>

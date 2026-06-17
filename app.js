@@ -8,7 +8,6 @@ const headers = {
   "Authorization": `Bearer ${SUPABASE_KEY}`
 };
 
-// Referencias del DOM
 const form = document.getElementById('postulante-form');
 const selectSexo = document.getElementById('sexo');
 const selectGrado = document.getElementById('grado_academico');
@@ -18,13 +17,31 @@ const filtroSexo = document.getElementById('filtro-sexo');
 const containerPostulantes = document.getElementById('postulantes-container');
 const alertMessage = document.getElementById('alert-message');
 
-// Inicialización de la Web
+const inputDni = document.getElementById('dni');
+const inputCelular = document.getElementById('celular');
+
 document.addEventListener('DOMContentLoaded', async () => {
+  configurarValidacionesBloqueo();
   await cargarCatalogosSupabase();
   await listarPostulantes();
 });
 
-// 1. Carga Dinámica desde las tablas catálogo de Supabase
+// Bloqueo en tiempo real: impide físicamente presionar letras o símbolos en DNI y celular
+function configurarValidacionesBloqueo() {
+  [inputDni, inputCelular].forEach(input => {
+    input.addEventListener('keydown', (e) => {
+      // Permitir teclas de control (retroceso, suprimir, tabulación, flechas)
+      if (['Backspace', 'Delete', 'Tab', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+        return;
+      }
+      // Bloquear si no es un número del 0 al 9
+      if (!/^[0-9]$/.test(e.key)) {
+        e.preventDefault();
+      }
+    });
+  });
+}
+
 async function cargarCatalogosSupabase() {
   try {
     const [resSexo, resGrado, resCarrera, resMod] = await Promise.all([
@@ -39,13 +56,11 @@ async function cargarCatalogosSupabase() {
     const datosCarrera = await resCarrera.json();
     const datosMod = await resMod.json();
 
-    // Rellenar selects del formulario
     inyectarOpciones(selectSexo, datosSexo);
     inyectarOpciones(selectGrado, datosGrado);
     inyectarOpciones(selectCarrera, datosCarrera);
     inyectarOpciones(selectModalidad, datosMod);
 
-    // Rellenar el filtro OBLIGATORIO de Sexo de manera dinámica (Punto clave en rúbrica)
     datosSexo.forEach(item => {
       filtroSexo.innerHTML += `<option value="${item.id}">${item.nombre}</option>`;
     });
@@ -62,17 +77,29 @@ function inyectarOpciones(selectElement, items) {
   });
 }
 
-// 2. Registro de datos hacia Supabase (POST)
+// Registro POST hacia Supabase incluyendo nuevos campos
 form.addEventListener('submit', async (e) => {
   e.preventDefault();
+
+  // Validaciones de longitud estrictas previas al envío
+  if (inputDni.value.length !== 8) {
+    mostrarAlerta("El DNI debe tener exactamente 8 dígitos.", "error");
+    return;
+  }
+  if (inputCelular.value.length !== 9) {
+    mostrarAlerta("El celular debe tener exactamente 9 dígitos.", "error");
+    return;
+  }
 
   const bodyPostulante = {
     nombres: document.getElementById('nombres').value,
     apellidos: document.getElementById('apellidos').value,
-    dni: document.getElementById('dni').value,
+    dni: inputDni.value,
     edad: parseInt(document.getElementById('edad').value),
-    celular: document.getElementById('celular').value,
+    celular: inputCelular.value,
     correo: document.getElementById('correo').value,
+    institucion_educativa: document.getElementById('institucion_educativa').value, // Guardar nuevo campo
+    promedio_academico: parseFloat(document.getElementById('promedio_academico').value), // Guardar nuevo campo
     sexo_id: parseInt(selectSexo.value),
     grado_academico_id: parseInt(selectGrado.value),
     carrera_interes_id: parseInt(selectCarrera.value),
@@ -90,7 +117,7 @@ form.addEventListener('submit', async (e) => {
     if (response.ok) {
       mostrarAlerta("¡Postulación registrada correctamente en Supabase!", "success");
       form.reset();
-      await listarPostulantes(); // Actualización inmediata del listado (GET)
+      await listarPostulantes();
     } else {
       throw new Error();
     }
@@ -99,11 +126,10 @@ form.addEventListener('submit', async (e) => {
   }
 });
 
-// 3. Consumir y renderizar registros trayendo nombres de los catálogos (GET)
+// Listado GET con los nuevos campos incrustados en la tarjeta visual
 async function listarPostulantes() {
   containerPostulantes.innerHTML = '<p class="loading-text">Sincronizando lista...</p>';
   
-  // Query relacional embebida para jalar los nombres asociados a las FKs
   const urlRelacional = `${SUPABASE_URL}/rest/v1/postulantes?select=*,sexos(nombre),grados_academicos(nombre),carreras_interes(nombre),modalidades_estudio(nombre)&order=created_at.asc`;
 
   try {
@@ -111,7 +137,7 @@ async function listarPostulantes() {
     const lista = await response.json();
     
     renderizarCards(lista);
-    window.cachePostulantes = lista; // Guardamos en memoria para el filtro dinámico instantáneo
+    window.cachePostulantes = lista;
   } catch (error) {
     containerPostulantes.innerHTML = '<p class="loading-text" style="color:var(--error);">Error al leer registros de Supabase.</p>';
   }
@@ -127,6 +153,10 @@ function renderizarCards(lista) {
   lista.forEach(postulante => {
     const card = document.createElement('div');
     card.className = 'postulante-card';
+    
+    // Formatear la fecha created_at para que se vea legible y profesional
+    const fechaReg = new Date(postulante.created_at).toLocaleString('es-PE', { timeZone: 'America/Lima' });
+
     card.innerHTML = `
       <div class="card-header-postulante">
         <h3>${postulante.nombres} ${postulante.apellidos}</h3>
@@ -134,6 +164,8 @@ function renderizarCards(lista) {
       </div>
       <div class="card-details">
         <p><strong>DNI:</strong> ${postulante.dni} | <strong>Edad:</strong> ${postulante.edad} años</p>
+        <p><strong>Colegio/Univ:</strong> ${postulante.institucion_educativa}</p>
+        <p><strong>Promedio:</strong> ⭐ ${parseFloat(postulante.promedio_academico).toFixed(2)}</p>
         <p><strong>Grado Académico:</strong> ${postulante.grados_academicos?.nombre || 'N/A'}</p>
         <p><strong>Carrera de Interés:</strong> ${postulante.carreras_interes?.nombre || 'N/A'}</p>
         <p><strong>Modalidad:</strong> <span class="badge badge-modalidad">${postulante.modalidades_estudio?.nombre || 'N/A'}</span></p>
@@ -141,7 +173,8 @@ function renderizarCards(lista) {
         
         <div class="contact-info">
           <strong>Celular:</strong> ${postulante.celular}<br>
-          <strong>Email:</strong> ${postulante.correo}
+          <strong>Email:</strong> ${postulante.correo}<br>
+          <small style="display:block; margin-top:0.5rem; color:#94a3b8;">Registrado: ${fechaReg}</small>
         </div>
       </div>
     `;
@@ -149,7 +182,6 @@ function renderizarCards(lista) {
   });
 }
 
-// 4. Lógica del Filtro Obligatorio por Sexo sin alterar el HTML manualmente
 filtroSexo.addEventListener('change', (e) => {
   const filtroId = e.target.value;
   if (!window.cachePostulantes) return;
