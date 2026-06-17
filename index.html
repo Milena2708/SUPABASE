@@ -1,309 +1,119 @@
 <!DOCTYPE html>
-
 <html lang="es">
-
 <head>
-
   <meta charset="UTF-8">
-
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <title>Registro de Pacientes</title>
-
-  <style>
-
-    /* CSS Básico e integrado para cumplir con la interfaz ordenada */
-
-    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; color: #333; margin: 0; padding: 20px; }
-
-    .container { max-width: 650px; background: white; margin: 0 auto; padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-
-    h1 { text-align: center; color: #2c3e50; margin-bottom: 30px; }
-
-    fieldset { border: 1px solid #ddd; border-radius: 6px; padding: 20px; margin-bottom: 20px; }
-
-    legend { font-weight: bold; color: #2980b9; padding: 0 10px; }
-
-    .form-group { margin-bottom: 15px; display: flex; flex-direction: column; }
-
-    label { margin-bottom: 5px; font-weight: 600; font-size: 14px; }
-
-    input, select, textarea { padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; width: 100%; box-sizing: border-box; }
-
-    input:focus, select:focus, textarea:focus { border-color: #3498db; outline: none; }
-
-    .row { display: flex; gap: 15px; }
-
-    .row .form-group { flex: 1; }
-
-    button { background-color: #27ae60; color: white; border: none; padding: 12px 20px; font-size: 16px; border-radius: 4px; cursor: pointer; width: 100%; font-weight: bold; transition: background 0.3s; }
-
-    button:hover { background-color: #219653; }
-
-    .message { padding: 15px; margin-top: 20px; border-radius: 4px; display: none; text-align: center; font-weight: bold; }
-
-    .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-
-    .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
-
-  </style>
-
+  <title>BecaProg | Registro de Postulantes</title>
+  <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
+  <header class="hero">
+    <div class="container hero-content">
+      <h1>BecaProg</h1>
+      <p>Sistema de postulación y asignación de becas de estudio superiores.</p>
+    </div>
+  </header>
 
+  <main class="container main-layout">
+    
+    <section class="card-panel">
+      <h2>Formulario de Inscripción</h2>
+      <p class="subtitle">Ingresa tus datos personales y académicos para postular.</p>
+      
+      <div id="alert-message" class="alert hidden"></div>
 
-<div class="container">
-
-  <h1>Registro Web de Pacientes</h1>
-
-  
-
-  <form id="pacienteForm">
-
-    <!-- SECCIÓN 1: DATOS PERSONALES -->
-
-    <fieldset>
-
-      <legend>Datos Personales</legend>
-
-      <div class="row">
-
-        <div class="form-group">
-
-          <label for="nombres">Nombres *</label>
-
-          <input type="text" id="nombres">
-
+      <form id="postulante-form">
+        <div class="form-group-title">Información Personal</div>
+        <div class="grid-2">
+          <div class="form-control">
+            <label for="nombres">Nombres</label>
+            <input type="text" id="nombres" required placeholder="Ej. Ana">
+          </div>
+          <div class="form-control">
+            <label for="apellidos">Apellidos</label>
+            <input type="text" id="apellidos" required placeholder="Ej. Ramos">
+          </div>
         </div>
 
-        <div class="form-group">
-
-          <label for="apellidos">Apellidos *</label>
-
-          <input type="text" id="apellidos">
-
+        <div class="grid-3">
+          <div class="form-control">
+            <label for="dni">DNI</label>
+            <input type="text" id="dni" required pattern="[0-9]{8}" placeholder="8 dígitos">
+          </div>
+          <div class="form-control">
+            <label for="edad">Edad</label>
+            <input type="number" id="edad" required min="15" max="100" placeholder="Ej. 19">
+          </div>
+          <div class="form-control">
+            <label for="sexo">Sexo</label>
+            <select id="sexo" required>
+              <option value="">Cargando...</option>
+            </select>
+          </div>
         </div>
 
-      </div>
-
-      <div class="row">
-
-        <div class="form-group">
-
-          <label for="dni">DNI (8 dígitos) *</label>
-
-          <input type="text" id="dni" maxlength="8">
-
+        <div class="grid-2">
+          <div class="form-control">
+            <label for="celular">Celular</label>
+            <input type="tel" id="celular" required placeholder="987654321">
+          </div>
+          <div class="form-control">
+            <label for="correo">Correo Electrónico</label>
+            <input type="email" id="correo" required placeholder="nombre@correo.com">
+          </div>
         </div>
 
-        <div class="form-group">
-
-          <label for="fecha_nacimiento">Fecha de Nacimiento</label>
-
-          <input type="date" id="fecha_nacimiento">
-
+        <div class="form-group-title">Perfil Académico</div>
+        <div class="grid-2">
+          <div class="form-control">
+            <label for="grado_academico">Grado Académico Actual</label>
+            <select id="grado_academico" required>
+              <option value="">Cargando...</option>
+            </select>
+          </div>
+          <div class="form-control">
+            <label for="carrera_interes">Carrera de Interés</label>
+            <select id="carrera_interes" required>
+              <option value="">Cargando...</option>
+            </select>
+          </div>
         </div>
 
-      </div>
-
-      <div class="row">
-
-        <div class="form-group">
-
-          <label for="edad">Edad</label>
-
-          <input type="number" id="edad" min="0">
-
-        </div>
-
-        <div class="form-group">
-
-          <label for="sexo">Sexo</label>
-
-          <select id="sexo">
-
-            <option value="">Seleccione...</option>
-
-            <option value="Masculino">Masculino</option>
-
-            <option value="Femenino">Femenino</option>
-
+        <div class="form-control">
+          <label for="modalidad_estudio">Modalidad de Estudio</label>
+          <select id="modalidad_estudio" required>
+            <option value="">Cargando...</option>
           </select>
-
         </div>
 
-      </div>
-
-      <div class="row">
-
-        <div class="form-group">
-
-          <label for="celular">Celular (mín. 9 dígitos) *</label>
-
-          <input type="text" id="celular">
-
+        <div class="form-control">
+          <label for="observaciones">Observaciones / Datos adicionales</label>
+          <textarea id="observaciones" rows="3" placeholder="Detalla algún logro o motivo de postulación..."></textarea>
         </div>
 
-        <div class="form-group">
+        <button type="submit" class="btn-submit">Enviar Postulación</button>
+      </form>
+    </section>
 
-          <label for="correo">Correo Electrónico *</label>
-
-          <input type="email" id="correo">
-
-        </div>
-
-      </div>
-
-      <div class="form-group">
-
-        <label for="direccion">Dirección</label>
-
-        <input type="text" id="direccion">
-
-      </div>
-
-      <div class="row">
-
-        <div class="form-group">
-
-          <label for="distrito">Distrito</label>
-
-          <input type="text" id="distrito">
-
-        </div>
-
-        <div class="form-group">
-
-          <label for="estado_civil">Estado Civil</label>
-
-          <select id="estado_civil">
-
-            <option value="">Seleccione...</option>
-
-            <option value="Soltero/a">Soltero/a</option>
-
-            <option value="Casado/a">Casado/a</option>
-
-            <option value="Divorciado/a">Divorciado/a</option>
-
-            <option value="Viudo/a">Viudo/a</option>
-
+    <section class="list-panel">
+      <div class="list-header">
+        <h2>Postulantes Registrados</h2>
+        <div class="filter-box">
+          <label for="filtro-sexo">Filtrar por Sexo:</label>
+          <select id="filtro-sexo">
+            <option value="todos">Todos</option>
           </select>
-
         </div>
-
       </div>
 
-    </fieldset>
-
-
-
-    <!-- SECCIÓN 2: DATOS ACADÉMICOS -->
-
-    <fieldset>
-
-      <legend>Datos Académicos</legend>
-
-      <div class="form-group">
-
-        <label for="grado_academico">Grado Académico *</label>
-
-        <!-- Este select se llenará dinámicamente desde Supabase -->
-
-        <select id="grado_academico">
-
-          <option value="">Cargando opciones...</option>
-
-        </select>
-
+      <div id="postulantes-container" class="cards-grid">
+        <p class="loading-text">Cargando registros desde Supabase...</p>
       </div>
+    </section>
 
-    </fieldset>
+  </main>
 
-
-
-    <!-- SECCIÓN 3: DATOS MÉDICOS -->
-
-    <fieldset>
-
-      <legend>Datos Médicos</legend>
-
-      <div class="form-group">
-
-        <label for="enfermedad_preexistente">Enfermedad Preexistente *</label>
-
-        <!-- Este select se llenará dinámicamente desde Supabase -->
-
-        <select id="enfermedad_preexistente">
-
-          <option value="">Cargando opciones...</option>
-
-        </select>
-
-      </div>
-
-    </fieldset>
-
-
-
-    <!-- SECCIÓN 4: OTROS DATOS -->
-
-    <fieldset>
-
-      <legend>Otros Datos</legend>
-
-      <div class="form-group">
-
-        <label for="cuenta_seguro">¿Cuenta con seguro de salud?</label>
-
-        <select id="cuenta_seguro">
-
-          <option value="false">No</option>
-
-          <option value="true">Sí</option>
-
-        </select>
-
-      </div>
-
-      <div class="form-group">
-
-        <label for="tipo_seguro">Tipo de seguro</label>
-
-        <input type="text" id="tipo_seguro" placeholder="Ej: EsSalud, SIS, Seguro Privado">
-
-      </div>
-
-      <div class="form-group">
-
-        <label for="observaciones">Observaciones adicionales</label>
-
-        <textarea id="observaciones" rows="3"></textarea>
-
-      </div>
-
-    </fieldset>
-
-
-
-    <button type="submit">Registrar Paciente</button>
-
-  </form>
-
-
-
-  <!-- Contenedor para mostrar alertas dinámicas de éxito o error -->
-
-  <div id="mensajeAlerta" class="message"></div>
-
-</div>
-
-
-
-<script type="module" src="app.js"></script>
-
+  <script src="app.js"></script>
 </body>
-
 </html>
